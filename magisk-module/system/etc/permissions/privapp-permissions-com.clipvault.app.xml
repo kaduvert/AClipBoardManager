@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Since Android 8, a priv-app can't just declare a signature|privileged permission
+  in its manifest and get it - the permission also has to be explicitly allowlisted
+  here, per package, or the system disables it (and on production/GMS builds may
+  refuse to boot with a "priv-app permission not allowlisted" warning depending on
+  device policy). This file grants ClipVault exactly one privileged permission.
+-->
+<permissions>
+    <privapp-permissions package="com.clipvault.app">
+        <permission name="android.permission.READ_CLIPBOARD_IN_BACKGROUND" />
+    </privapp-permissions>
+</permissions>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ClipVault</string>
+    <string name="xposed_description">Captures system-wide clipboard changes (via system_server) into ClipVault\'s local history. No network access, nothing leaves the device.</string>
+
+    <string name="search_placeholder">Search clipboard history</string>
+    <string name="empty_title">Nothing copied yet</string>
+    <string name="empty_subtitle_active">Copy something anywhere on your device and it will show up here.</string>
+    <string name="empty_subtitle_inactive">ClipVault isn\'t capturing yet. Set up LSPosed or root mode in Settings.</string>
+    <string name="empty_search">No matches</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_capture_section">Capture</string>
+    <string name="settings_status_lsposed_active">LSPosed hook active</string>
+    <string name="settings_status_lsposed_inactive">LSPosed hook not detected</string>
+    <string name="settings_status_root_active">Root capture service running</string>
+    <string name="settings_status_root_available">Root available, capture service stopped</string>
+    <string name="settings_status_none">No capture method active</string>
+    <string name="settings_root_toggle">Use root capture service</string>
+    <string name="settings_root_toggle_desc">Fallback when the LSPosed module isn\'t active. Requires the bundled Magisk module to grant background clipboard access.</string>
+
+    <string name="settings_privacy_section">Privacy</string>
+    <string name="settings_private_mode">Private mode</string>
+    <string name="settings_private_mode_desc">Pause history. New clips are not saved while this is on.</string>
+
+    <string name="settings_history_section">History</string>
+    <string name="settings_history_limit">Entries to keep</string>
+    <string name="settings_clear_history">Clear history</string>
+    <string name="settings_clear_history_desc">Deletes all saved clipboard entries. This can\'t be undone.</string>
+    <string name="settings_clear_confirm_title">Clear all history?</string>
+    <string name="settings_clear_confirm_body">This permanently deletes every saved clipboard entry.</string>
+    <string name="cancel">Cancel</string>
+    <string name="clear">Clear</string>
+
+    <string name="copied_toast">Copied to clipboard</string>
+</resources>

@@ -1,0 +1,6 @@
+id=clipvault_privapp
+name=ClipVault Root Capture (priv-app promoter)
+version=v1.0
+versionCode=1
+author=you
+description=Promotes the already-installed ClipVault app to a privileged system app and grants it android.permission.READ_CLIPBOARD_IN_BACKGROUND, so ClipVault's root-mode capture service can read clipboard changes while backgrounded. Only needed if you are NOT using the LSPosed module - LSPosed is the recommended path and does not need this.

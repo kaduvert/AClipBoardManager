@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="xposed_scope">
+        <item>android</item>
+        <!-- Self-scoped too: lets the app detect whether its own hook is
+             actually active (see xposed/HookStatus.kt) so Settings can show
+             an accurate status instead of guessing. -->
+        <item>com.clipvault.app</item>
+    </string-array>
+</resources>
