@@ -1,0 +1,1 @@
+ClipBoard Manager with history, selection and management. Needs LSPosed / Root

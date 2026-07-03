@@ -1,0 +1,29 @@
+ClipVault is a deliberately small clipboard manager: one screen with a search
+bar and your copied entries, and one settings screen. Nothing else.
+
+Tap any past entry to put it back on the clipboard - it's marked as the
+active entry, and selecting it never creates a duplicate or reorders your
+history.
+
+Capture works without any of the usual clipboard-reading permissions:
+
+* LSPosed (recommended) - a module hook installed into system_server reads
+  clipboard writes system-wide, before Android's background-read
+  restrictions even apply.
+* Root fallback - an included Magisk module promotes the app to a
+  privileged system app so a background service can read clipboard changes
+  the way Android's own privileged clipboard tools do.
+
+Settings are limited to what a clipboard history actually needs:
+
+* Private mode, to pause saving entirely
+* A configurable history limit (or no limit)
+* Clear history
+
+ClipVault makes no network requests, contains no analytics or ads, and
+stores everything locally on the device.
+
+Requires either an active LSPosed module or root access to capture
+anything - see the project README for setup instructions.
+
+This app is fully AI generated. It's great though 🤷‍♂️

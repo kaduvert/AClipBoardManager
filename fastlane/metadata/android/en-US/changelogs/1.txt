@@ -1,0 +1,6 @@
+Initial release.
+
+* Single-screen clipboard history with search
+* Tap an entry to reactivate it - no duplicates, no reordering
+* Private mode, configurable history limit, clear history
+* Capture via LSPosed hook (recommended) or a root/priv-app fallback
