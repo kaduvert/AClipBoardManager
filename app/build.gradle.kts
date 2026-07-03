@@ -17,14 +17,14 @@ android {
         versionName = "1.0.0"
     }
 
-        signingConfigs {
-            create("release") {
-                storeFile = file("my_release_key.jks")
-                storePassword = "000000"
-                keyAlias = "clipvault"
-                keyPassword = "000000"
-            }
+    signingConfigs {
+        create("release") {
+            storeFile = file("my_release_key.jks")
+            storePassword = "000000"
+            keyAlias = "clipvault"
+            keyPassword = "000000"
         }
+    }
 
     buildTypes {
         release {
@@ -96,5 +96,5 @@ dependencies {
     implementation("com.github.topjohnwu.libsu:core:5.2.2")
 
     // Classic Xposed API - compileOnly, provided by the LSPosed framework at runtime
-    compileOnly("de.robv.android.xposed:api:82")
+    compileOnly("com.github.rovo89:XposedBridge:v82")
 }
