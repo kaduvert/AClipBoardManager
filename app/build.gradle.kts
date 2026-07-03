@@ -96,5 +96,5 @@ dependencies {
     implementation("com.github.topjohnwu.libsu:core:5.2.2")
 
     // Classic Xposed API - compileOnly, provided by the LSPosed framework at runtime
-    compileOnly("com.github.rovo89:XposedBridge:v82")
+    compileOnly("com.github.deltazefiro:XposedBridge:3137dcc")
 }
