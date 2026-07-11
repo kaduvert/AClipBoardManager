@@ -1,13 +1,14 @@
 package com.clipvault.app.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -27,31 +28,38 @@ import com.clipvault.app.ui.theme.activeIndicator
 import java.text.DateFormat
 import java.util.Date
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ClipEntryItem(
     entry: ClipEntry,
+    selected: Boolean,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val shape = RoundedCornerShape(20.dp)
     Card(
-        onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .clip(shape),
+            .clip(shape)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         shape = shape,
-        colors = if (entry.isActive) {
-            CardDefaults.cardColors(
+        colors = when {
+            selected -> CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer
+            )
+            entry.isActive -> CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer
             )
-        } else {
-            CardDefaults.cardColors(
+            else -> CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
             )
         },
-        border = if (entry.isActive) {
-            BorderStroke(1.5.dp, MaterialTheme.colorScheme.activeIndicator)
-        } else null
+        border = when {
+            selected -> BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary)
+            entry.isActive -> BorderStroke(1.5.dp, MaterialTheme.colorScheme.activeIndicator)
+            else -> null
+        }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -64,7 +72,14 @@ fun ClipEntryItem(
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                if (entry.isActive) {
+                if (selected) {
+                    Icon(
+                        imageVector = Icons.Filled.CheckCircle,
+                        contentDescription = "Selected",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                } else if (entry.isActive) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Filled.CheckCircle,

@@ -1,9 +1,10 @@
 package com.clipvault.app.data
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room3.Database
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
+import androidx.sqlite.driver.AndroidSQLiteDriver
 
 @Database(entities = [ClipEntry::class], version = 1, exportSchema = false)
 abstract class ClipDatabase : RoomDatabase() {
@@ -20,7 +21,10 @@ abstract class ClipDatabase : RoomDatabase() {
                     context.applicationContext,
                     ClipDatabase::class.java,
                     "clipvault.db"
-                ).build().also { instance = it }
+                )
+                    .setDriver(AndroidSQLiteDriver())
+                    .build()
+                    .also { instance = it }
             }
     }
 }

@@ -1,9 +1,9 @@
 package com.clipvault.app.data
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Transaction
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.Query
+import androidx.room3.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -35,13 +35,16 @@ interface ClipDao {
 
     @Query(
         "DELETE FROM clip_entries WHERE id IN (" +
-                "SELECT id FROM clip_entries ORDER BY timestamp DESC LIMIT -1 OFFSET :keep" +
-                ")"
+            "SELECT id FROM clip_entries ORDER BY timestamp DESC LIMIT -1 OFFSET :keep" +
+            ")"
     )
     suspend fun trimBeyond(keep: Int)
 
     @Query("DELETE FROM clip_entries")
     suspend fun clearAll()
+
+    @Query("DELETE FROM clip_entries WHERE id IN (:ids)")
+    suspend fun deleteByIds(ids: List<Long>)
 
     /**
      * Records a freshly-captured clip. If identical content already exists in

@@ -45,7 +45,11 @@ private fun ClipVaultNavHost(viewModel: ClipViewModel) {
         composable(ROUTE_SETTINGS) {
             SettingsScreen(
                 viewModel = viewModel,
-                onBack = { navController.popBackStack() }
+                onBack = {
+                    if (navController.previousBackStackEntry != null) {
+                        navController.popBackStack()
+                    }
+                }
             )
         }
     }

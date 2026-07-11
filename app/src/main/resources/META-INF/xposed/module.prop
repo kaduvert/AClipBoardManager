@@ -1,0 +1,9 @@
+# Our modern-API code (interceptor-chain hooking, no-arg XposedModule
+# constructor) only matches the API 102 module contract, so we can't safely
+# claim compatibility with anything older - a framework stuck on 100 or 101
+# should skip this entry point rather than try to load it and fail.
+minApiVersion=102
+targetApiVersion=102
+# We only ever want this module active in system_server, never applied to
+# some unrelated app by a user browsing LSPosed/Vector's module list.
+staticScope=true

@@ -36,4 +36,9 @@ class ClipRepository(context: Context) {
     suspend fun clearHistory() {
         dao.clearAll()
     }
+
+    suspend fun deleteEntries(ids: Set<Long>) {
+        if (ids.isEmpty()) return
+        dao.deleteByIds(ids.toList())
+    }
 }

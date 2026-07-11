@@ -25,12 +25,16 @@
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:description="@string/xposed_description"
         android:roundIcon="@mipmap/ic_launcher"
         android:theme="@style/Theme.ClipVault"
         android:enableOnBackInvokedCallback="true"
         android:supportsRtl="true">
 
-        <!-- Marks this APK as an LSPosed/Xposed module and declares its scope. -->
+        <!-- Classic-API (rovo89-style, API 82) module discovery - read by
+             frameworks that don't understand the modern libxposed API at all.
+             The modern API (see ClipboardHookModern) doesn't use manifest
+             metadata; its equivalents are the META-INF/xposed/* files. -->
         <meta-data android:name="xposedmodule" android:value="true" />
         <meta-data android:name="xposedminversion" android:value="93" />
         <meta-data android:name="xposeddescription" android:value="@string/xposed_description" />

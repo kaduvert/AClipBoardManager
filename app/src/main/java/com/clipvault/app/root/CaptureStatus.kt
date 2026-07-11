@@ -19,7 +19,22 @@ data class CaptureStatus(
 
 object CaptureStatusChecker {
 
-    /** Cheap, synchronous, in-process check - safe to call from a Composable's LaunchedEffect. */
+    /**
+     * Cheap, synchronous, in-process check - safe to call from a Composable's
+     * LaunchedEffect.
+     *
+     * Note: [HookStatus] can only ever reflect the *classic*-API hook
+     * ([com.clipvault.app.xposed.ClipboardHook]). The modern-API hook
+     * ([com.clipvault.app.xposed.ClipboardHookModern]) has no equivalent - the
+     * modern libxposed API doesn't let a module hook its own app process the
+     * way the classic one does, so there's no in-process marker to flip. In
+     * practice this only matters if a framework somehow runs the modern hook
+     * but not the classic one; since both are shipped together and the
+     * classic API works everywhere, that's an unlikely combination. If it
+     * ever needs to be precise, the fix is a real status channel (the
+     * `libxposed/service` library's XposedService), not a bigger version of
+     * this workaround.
+     */
     fun check(context: Context): CaptureStatus {
         val lsposedActive = runCatching { HookStatus.isActive() }.getOrDefault(false)
         val isPrivApp = context.packageManager.checkPermission(

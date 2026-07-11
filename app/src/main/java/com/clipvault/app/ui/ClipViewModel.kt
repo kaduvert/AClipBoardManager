@@ -72,6 +72,10 @@ class ClipViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { repository.clearHistory() }
     }
 
+    fun deleteEntries(ids: Set<Long>) {
+        viewModelScope.launch { repository.deleteEntries(ids) }
+    }
+
     fun setRootCaptureEnabled(enabled: Boolean) {
         viewModelScope.launch { repository.settings.setRootCaptureEnabled(enabled) }
         val app = getApplication<Application>()

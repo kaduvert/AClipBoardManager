@@ -1,9 +1,11 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
 }
+
+val enableModernXposedHook = (project.findProperty("clipvault.modernXposedHook") as String?)
+    ?.toBoolean() ?: false
 
 android {
     namespace = "com.clipvault.app"
@@ -47,10 +49,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildFeatures {
         compose = true
     }
@@ -58,6 +56,9 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            if (!enableModernXposedHook) {
+                excludes += "META-INF/xposed/**"
+            }
         }
     }
 }
@@ -84,10 +85,12 @@ dependencies {
     // Coroutines (also pulled in transitively, declared explicitly for clarity)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 
-    // Room
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1")
+    // Room 3.0 - new package/artifact group (androidx.room3), KSP-only, no more
+    // Java codegen. Needs an explicit SQLiteDriver since it no longer touches
+    // Android's SupportSQLite types at all (see ClipDatabase.kt).
+    implementation("androidx.room3:room3-runtime:3.0.0")
+    implementation("androidx.sqlite:sqlite-framework:2.7.0")
+    ksp("androidx.room3:room3-compiler:3.0.0")
 
     // DataStore (settings)
     implementation("androidx.datastore:datastore-preferences:1.1.1")
@@ -95,6 +98,10 @@ dependencies {
     // Root detection / shell (used only for Settings status + Magisk-assisted install helper)
     implementation("com.github.topjohnwu.libsu:core:5.2.2")
 
-    // Classic Xposed API - compileOnly, provided by the LSPosed framework at runtime
+    // Classic Xposed API - compileOnly, provided by the LSPosed/Vector framework at runtime
     compileOnly("com.github.deltazefiro:XposedBridge:3137dcc")
+
+    // Modern libxposed API - compileOnly, provided by frameworks that support it at runtime.
+    // See ClipboardHookModern's doc comment for why 102 specifically.
+    compileOnly("io.github.libxposed:api:102.0.0")
 }
