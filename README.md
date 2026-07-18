@@ -1,9 +1,15 @@
 # ClipVault
 
+[<img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" alt="app icon" width="72" />](https://github.com/kaduvert/AClipBoardManager/releases/latest/download/app-release.apk)
+[<img src="https://i.ibb.co/q0mdc4Z/get-it-on-github.png" alt="Get it on GitHub" height="80" />](https://github.com/kaduvert/AClipBoardManager/releases/latest)
+[<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/41952#note_3563208950)
+
 A minimal, single-screen, Material You clipboard manager for rooted / LSPosed
 Android devices. No `READ_CLIPBOARD`-style runtime permission dance, no ads, no
 cloud sync - it watches the system clipboard at a privileged level and keeps a
 local, searchable history.
+
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" alt="light mode screenshot" width="200" /> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" alt="dark mode screenshot" width="200" />
 
 - **One screen**: a search field pinned at the top, and a scrolling list of
   past clips below it. Tap any entry to put it back on the clipboard - the
