@@ -5,7 +5,7 @@ plugins {
 }
 
 val enableModernXposedHook = (project.findProperty("clipvault.modernXposedHook") as String?)
-    ?.toBoolean() ?: false
+    ?.toBoolean() ?: true
 
 android {
     namespace = "com.clipvault.app"
