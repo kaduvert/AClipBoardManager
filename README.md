@@ -2,7 +2,6 @@
 
 [<img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" alt="app icon" width="72" />](https://github.com/kaduvert/AClipBoardManager/releases/latest/download/app-release.apk)
 [<img src="https://i.ibb.co/q0mdc4Z/get-it-on-github.png" alt="Get it on GitHub" height="80" />](https://github.com/kaduvert/AClipBoardManager/releases/latest)
-[<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/41952#note_3563208950)
 
 A minimal, single-screen, Material You clipboard manager for rooted / LSPosed
 Android devices. No `READ_CLIPBOARD`-style runtime permission dance, no ads, no
