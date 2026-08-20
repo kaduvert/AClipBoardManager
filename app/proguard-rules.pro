@@ -1,13 +1,6 @@
-# Keep the Xposed hook entry point intact - it's loaded by name via assets/xposed_init
-# and instantiated reflectively by the LSPosed framework, not referenced from our own code.
--keep class com.clipvault.app.xposed.** { *; }
-
-# Modern libxposed API (see ClipboardHookModern) - official recommended rules.
--dontwarn io.github.libxposed.annotation.**
--adaptresourcefilecontents META-INF/xposed/java_init.list
--keep,allowoptimization,allowobfuscation public class * extends io.github.libxposed.api.XposedModule {
-    public <init>();
-}
+# Rules that apply no matter which capture flavor is built - see
+# proguard-rules-xposed.pro and proguard-rules-root.pro (app/build.gradle.kts
+# picks exactly one of the two, alongside this file, based on clipvault.useRoot).
 
 # Keep Room entities / DAOs
 -keep class com.clipvault.app.data.** { *; }
@@ -16,7 +9,3 @@
 -keep class * extends androidx.room3.RoomDatabase {
     <init>();
 }
-
-# Keep the ContentProvider (referenced from the manifest, but be explicit since
-# it's the cross-process bridge used by the Xposed hook running in system_server)
--keep class com.clipvault.app.provider.** { *; }

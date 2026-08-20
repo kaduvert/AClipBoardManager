@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_status_active">Privileged capture service running</string>
+    <string name="settings_status_inactive">Privileged permission not granted yet</string>
+    <string name="settings_status_hint">Make sure the ClipVault root module is flashed in Magisk/KernelSU and the device has rebooted since flashing.</string>
+</resources>

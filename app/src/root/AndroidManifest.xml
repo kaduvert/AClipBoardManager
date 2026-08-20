@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- signature|privileged permission. Normal apps can never hold this, root or
+         not - it cannot be granted with `pm grant`, even as root; that only works
+         for dangerous/runtime permissions. It can only be auto-granted to a priv-app
+         explicitly allow-listed by package name in a privapp-permissions XML under
+         /system/etc/permissions, which is exactly what /module installs. Until that
+         module is flashed and the device has rebooted, this build simply won't have
+         this permission and ClipboardWatcherService's listener won't fire - see
+         capture/CaptureCoordinator.kt for the status check shown in Settings. -->
+    <uses-permission
+        android:name="android.permission.READ_CLIPBOARD_IN_BACKGROUND"
+        tools:ignore="ProtectedPermissions" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application
+        android:name=".ClipVaultApp"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:theme="@style/Theme.ClipVault"
+        android:enableOnBackInvokedCallback="true"
+        android:supportsRtl="true">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ClipVault"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Runs for as long as the device is on. Needs no IPC bridge and no su:
+             once READ_CLIPBOARD_IN_BACKGROUND is actually granted (i.e. /module has
+             been flashed and the device rebooted), a plain OnPrimaryClipChangedListener
+             in this already-privileged process just works. -->
+        <service
+            android:name=".root.ClipboardWatcherService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Privileged clipboard history capture" />
+        </service>
+
+        <!-- Starts the watcher on every boot without needing MainActivity opened
+             first - this build is meant to be flashed and forgotten, the same way
+             the module itself is. exported=false is deliberate and sufficient:
+             the system delivers BOOT_COMPLETED to manifest receivers regardless,
+             this just stops other apps from triggering it directly. -->
+        <receiver
+            android:name=".root.BootCompletedReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>

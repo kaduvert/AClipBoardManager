@@ -1,0 +1,11 @@
+Breaking change: the in-app "Use root capture service" toggle is gone.
+
+Capture method is now chosen when the app is built, not switched at runtime:
+
+* LSPosed build (default, unchanged behavior otherwise)
+* Root/priv-app build - install via the new module under /module, which
+  flashes straight into /system/priv-app in one shot (previously this
+  required installing normally first, then two reboots)
+
+If you were using the root fallback before, uninstall the old app, flash the
+new module from /module, and reboot once.

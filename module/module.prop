@@ -1,0 +1,6 @@
+id=clipvault_root
+name=ClipVault (root/priv-app build)
+version=v2.0
+versionCode=5
+author=you
+description=Installs the root-flavor ClipVault build (clipvault.useRoot=true) as a privileged system app holding android.permission.READ_CLIPBOARD_IN_BACKGROUND, so its capture service can read clipboard changes in the background without LSPosed. See /module/README.md for how this differs from the old promote-an-already-installed-app approach.

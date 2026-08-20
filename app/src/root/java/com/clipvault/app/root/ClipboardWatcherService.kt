@@ -19,13 +19,19 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 /**
- * Fallback capture path for devices with root but no active LSPosed module.
+ * The only capture path in the root/priv-app build (see app/build.gradle.kts'
+ * clipvault.useRoot flag - the LSPosed build has no equivalent of this class).
  *
  * Relies on the app having been promoted to a privileged system app holding
- * android.permission.READ_CLIPBOARD_IN_BACKGROUND (see /magisk-module) - only
- * that permission lets [ClipboardManager.getPrimaryClip] return real data while
- * this service, and therefore the app, isn't in the foreground. Without it this
- * service simply won't observe anything useful, which is expected and harmless.
+ * android.permission.READ_CLIPBOARD_IN_BACKGROUND by /module before this app was
+ * ever installed - only that permission lets [ClipboardManager.getPrimaryClip]
+ * return real data while this service, and therefore the app, isn't in the
+ * foreground. Without it (module not flashed yet, or flashed but not yet
+ * rebooted into) this service simply won't observe anything useful, which is
+ * expected and harmless; see capture/CaptureCoordinator for the status check
+ * that reports this in Settings. Started from BootCompletedReceiver and,
+ * defensively, from ClipVaultApp.onCreate() - never from user interaction, since
+ * there's no toggle left to start it from.
  */
 class ClipboardWatcherService : Service() {
 
@@ -72,7 +78,7 @@ class ClipboardWatcherService : Service() {
         }
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.app_name))
-            .setContentText(getString(R.string.settings_status_root_active))
+            .setContentText(getString(R.string.settings_status_active))
             .setSmallIcon(android.R.drawable.ic_menu_save)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_MIN)

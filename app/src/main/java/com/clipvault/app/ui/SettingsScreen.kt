@@ -1,6 +1,7 @@
 package com.clipvault.app.ui
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -42,14 +43,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.clipvault.app.R
+import com.clipvault.app.capture.CaptureCoordinator
+import com.clipvault.app.capture.CaptureStatus
 import com.clipvault.app.data.HISTORY_LIMIT_UNLIMITED
 import com.clipvault.app.data.SettingsStore
-import com.clipvault.app.root.CaptureMethod
-import com.clipvault.app.root.CaptureStatus
-import com.clipvault.app.root.CaptureStatusChecker
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,27 +57,29 @@ fun SettingsScreen(
     onBack: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
+    val status by viewModel.captureStatus.collectAsState()
     val context = LocalContext.current
-
-    var status by remember {
-        mutableStateOf(CaptureStatus(CaptureMethod.NONE, deviceRooted = false, isPrivApp = false))
-    }
-    LaunchedEffect(Unit) {
-        status = withContext(Dispatchers.Default) { CaptureStatusChecker.check(context) }
-    }
-
-    var showClearConfirm by remember { mutableStateOf(false) }
 
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { /* Service runs either way; the notification just won't show if denied. */ }
 
-    fun enableRootCapture(enabled: Boolean) {
-        if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    // There's no toggle left to hang this off of - the root build always intends
+    // to run its capture service, so this just asks once, the first time Settings
+    // is opened after a boot where it isn't granted yet. The Xposed build never
+    // needs to ask at all (needsNotificationPermission is a compile-time constant
+    // that's simply false in that flavor).
+    LaunchedEffect(Unit) {
+        if (CaptureCoordinator.needsNotificationPermission &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+        ) {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
-        viewModel.setRootCaptureEnabled(enabled)
     }
+
+    var showClearConfirm by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -99,30 +100,6 @@ fun SettingsScreen(
         ) {
             SectionLabel(stringResource(R.string.settings_capture_section))
             CaptureStatusCard(status)
-
-            if (status.method != CaptureMethod.LSPOSED) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp, bottom = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.settings_root_toggle), style = MaterialTheme.typography.bodyLarge)
-                        Text(
-                            stringResource(R.string.settings_root_toggle_desc),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Switch(
-                        checked = state.rootCaptureEnabled,
-                        onCheckedChange = { enableRootCapture(it) },
-                        enabled = status.deviceRooted
-                    )
-                }
-            }
 
             SectionLabel(stringResource(R.string.settings_privacy_section), topPadding = 28.dp)
             Row(
@@ -231,27 +208,8 @@ private fun SectionLabel(text: String, topPadding: Dp = 8.dp) {
 
 @Composable
 private fun CaptureStatusCard(status: CaptureStatus) {
-    val (icon, text, color) = when (status.method) {
-        CaptureMethod.LSPOSED -> Triple(
-            Icons.Filled.CheckCircle,
-            stringResource(R.string.settings_status_lsposed_active),
-            MaterialTheme.colorScheme.primary
-        )
-        CaptureMethod.ROOT_PRIV_APP -> Triple(
-            Icons.Filled.CheckCircle,
-            stringResource(R.string.settings_status_root_active),
-            MaterialTheme.colorScheme.primary
-        )
-        CaptureMethod.NONE -> Triple(
-            Icons.Filled.Warning,
-            if (status.deviceRooted) {
-                stringResource(R.string.settings_status_root_available)
-            } else {
-                stringResource(R.string.settings_status_none)
-            },
-            MaterialTheme.colorScheme.error
-        )
-    }
+    val icon = if (status.active) Icons.Filled.CheckCircle else Icons.Filled.Warning
+    val color = if (status.active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -263,7 +221,16 @@ private fun CaptureStatusCard(status: CaptureStatus) {
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Icon(icon, contentDescription = null, tint = color)
-            Text(text, style = MaterialTheme.typography.bodyLarge)
+            Column {
+                Text(status.statusText, style = MaterialTheme.typography.bodyLarge)
+                status.hintText?.let {
+                    Text(
+                        it,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         }
     }
 }
