@@ -19,7 +19,6 @@ class SettingsStore(private val context: Context) {
     private object Keys {
         val PRIVATE_MODE = booleanPreferencesKey("private_mode")
         val HISTORY_LIMIT = intPreferencesKey("history_limit")
-        val ROOT_CAPTURE_ENABLED = booleanPreferencesKey("root_capture_enabled")
     }
 
     val privateMode: Flow<Boolean> =
@@ -28,19 +27,12 @@ class SettingsStore(private val context: Context) {
     val historyLimit: Flow<Int> =
         context.dataStore.data.map { it[Keys.HISTORY_LIMIT] ?: DEFAULT_HISTORY_LIMIT }
 
-    val rootCaptureEnabled: Flow<Boolean> =
-        context.dataStore.data.map { it[Keys.ROOT_CAPTURE_ENABLED] ?: false }
-
     suspend fun setPrivateMode(enabled: Boolean) {
         context.dataStore.edit { it[Keys.PRIVATE_MODE] = enabled }
     }
 
     suspend fun setHistoryLimit(limit: Int) {
         context.dataStore.edit { it[Keys.HISTORY_LIMIT] = limit }
-    }
-
-    suspend fun setRootCaptureEnabled(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.ROOT_CAPTURE_ENABLED] = enabled }
     }
 
     suspend fun isPrivateModeNow(): Boolean = privateMode.first()

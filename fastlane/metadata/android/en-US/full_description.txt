@@ -5,14 +5,16 @@ Tap any past entry to put it back on the clipboard - it's marked as the
 active entry, and selecting it never creates a duplicate or reorders your
 history.
 
-Capture works without any of the usual clipboard-reading permissions:
+Capture works without any of the usual clipboard-reading permissions, using
+one of two builds (chosen when the app is compiled, not a switch inside it):
 
-* LSPosed (recommended) - a module hook installed into system_server reads
+* LSPosed build (default) - a module hook installed into system_server reads
   clipboard writes system-wide, before Android's background-read
   restrictions even apply.
-* Root fallback - an included Magisk module promotes the app to a
-  privileged system app so a background service can read clipboard changes
-  the way Android's own privileged clipboard tools do.
+* Root/priv-app build - installed via a Magisk/KernelSU module straight into
+  /system/priv-app, so a background service can read clipboard changes the
+  way Android's own privileged clipboard tools do. Flash the module, reboot
+  once, done.
 
 Settings are limited to what a clipboard history actually needs:
 

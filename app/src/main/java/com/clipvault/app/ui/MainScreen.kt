@@ -50,6 +50,7 @@ fun MainScreen(
     onOpenSettings: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
+    val captureStatus by viewModel.captureStatus.collectAsState()
 
     var selectedIds by remember { mutableStateOf(setOf<Long>()) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
@@ -90,7 +91,7 @@ fun MainScreen(
             if (state.entries.isEmpty()) {
                 EmptyState(
                     isSearching = state.query.isNotBlank(),
-                    captureLikelyActive = state.rootCaptureEnabled,
+                    captureLikelyActive = captureStatus.active,
                     modifier = Modifier.fillMaxSize()
                 )
             } else {

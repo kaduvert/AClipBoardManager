@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Custom signature-level permission guarding writes to our ContentProvider bridge.
          Third-party apps can never hold this (different signing cert). system_server
@@ -9,16 +8,6 @@
     <permission
         android:name="com.clipvault.app.permission.WRITE_CLIP"
         android:protectionLevel="signature" />
-
-    <!-- Only meaningful if this APK is ever promoted to a priv-app via the bundled
-         Magisk module (see /magisk-module). Ignored otherwise - no normal permission
-         prompt is shown for it and no ordinary functionality depends on it. -->
-    <uses-permission android:name="android.permission.READ_CLIPBOARD_IN_BACKGROUND"
-        tools:ignore="ProtectedPermissions" />
-
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".ClipVaultApp"
@@ -34,7 +23,9 @@
         <!-- Classic-API (rovo89-style, API 82) module discovery - read by
              frameworks that don't understand the modern libxposed API at all.
              The modern API (see ClipboardHookModern) doesn't use manifest
-             metadata; its equivalents are the META-INF/xposed/* files. -->
+             metadata; its equivalents are the META-INF/xposed/* files, which
+             are only added to this build's resources when
+             clipvault.modernXposedHook is left at its default of true. -->
         <meta-data android:name="xposedmodule" android:value="true" />
         <meta-data android:name="xposedminversion" android:value="93" />
         <meta-data android:name="xposeddescription" android:value="@string/xposed_description" />
@@ -52,22 +43,14 @@
         </activity>
 
         <!-- Bridge ContentProvider: the only way clip data crosses from the LSPosed
-             hook (running inside system_server) into this app's process/database. -->
+             hook (running inside system_server) into this app's process/database.
+             The root build has no equivalent of this at all - see app/src/root. -->
         <provider
             android:name=".provider.ClipboardProvider"
             android:authorities="com.clipvault.app.provider"
             android:exported="true"
             android:writePermission="com.clipvault.app.permission.WRITE_CLIP"
             android:readPermission="com.clipvault.app.permission.WRITE_CLIP" />
-
-        <service
-            android:name=".root.ClipboardWatcherService"
-            android:exported="false"
-            android:foregroundServiceType="specialUse">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Local clipboard history capture (root/priv-app mode only)" />
-        </service>
 
     </application>
 </manifest>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="xposed_description">Captures system-wide clipboard changes (via system_server) into ClipVault\'s local history. No network access, nothing leaves the device.</string>
+
+    <string name="settings_status_active">LSPosed hook active</string>
+    <string name="settings_status_inactive">LSPosed hook not detected</string>
+    <string name="settings_status_hint">Enable the ClipVault module for Android System in LSPosed Manager, then reboot.</string>
+</resources>

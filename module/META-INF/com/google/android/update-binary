@@ -1,0 +1,42 @@
+#!/sbin/sh
+# ClipVault root/priv-app module installer.
+#
+# This is a Magisk/KernelSU module, not a recovery-flashable raw /system
+# patch - it's a privileged-permission grant for one already-known package
+# (com.clipvault.app) plus that package's own APK, so unlike a lot of
+# older-style modules there's no direct-recovery-flash fallback mode here.
+# Install this from inside Magisk Manager's or KernelSU Manager's own module
+# installer, not TWRP/fastboot/adb sideload.
+
+OUTFD=${2}
+ZIPFILE=${3}
+
+umask 022
+
+ui_print() {
+    printf "ui_print %s\nui_print\n" "${*}" > /proc/self/fd/"${OUTFD}"
+}
+
+if [ -f /data/adb/magisk/util_functions.sh ]; then
+    . /data/adb/magisk/util_functions.sh
+    if [ -n "${MAGISK_VER_CODE}" ] && [ "${MAGISK_VER_CODE}" -lt 20400 ]; then
+        ui_print "*** Magisk v20.4 (20400) or newer is required. ***"
+        exit 1
+    fi
+    install_module
+    exit 0
+fi
+
+# KernelSU Manager's own "Install from storage" flow generally installs
+# module zips like this one natively rather than by executing this script,
+# so if you're on KernelSU, prefer installing it that way instead. If
+# update-binary is running at all and reaches this point, this isn't Magisk
+# and isn't a KernelSU-native install, so there's nothing left to fall back
+# to - failing loudly here is more useful than silently doing nothing.
+ui_print "-------------------------------------------------------------"
+ui_print " Couldn't find a Magisk environment to install through."
+ui_print " If you're on KernelSU, install this zip from KernelSU"
+ui_print " Manager's own module installer instead of running it this way."
+ui_print " If you're on Magisk, update to a recent version first."
+ui_print "-------------------------------------------------------------"
+exit 1
