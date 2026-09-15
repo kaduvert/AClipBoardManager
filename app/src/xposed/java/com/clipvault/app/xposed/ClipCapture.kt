@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.Context
 import com.clipvault.app.provider.ClipboardProvider
 import java.lang.reflect.Method
+import java.util.concurrent.Executors
 
 /**
  * Everything both hook implementations need: finding every overload of
@@ -73,41 +74,66 @@ internal object ClipCapture {
     }
 
     /**
+     * Single-threaded executor for clip delivery. Using one thread (rather than
+     * bare [Thread].start()) guarantees that clips are delivered to the app in the
+     * same order they were observed in system_server: two rapid clipboard writes A
+     * then B cannot arrive as B then A at the ContentProvider. The daemon flag
+     * means this thread never prevents system_server from exiting (which it
+     * wouldn't do anyway, but belt-and-suspenders in a process we don't own).
+     */
+    private val deliveryExecutor by lazy {
+        Executors.newSingleThreadExecutor { r ->
+            Thread(r, "ClipVault-delivery").also { it.isDaemon = true }
+        }
+    }
+
+    /**
      * Looks for a [ClipData] among the hooked method's arguments and, if one
-     * with usable plain text is found, forwards it to the app. Safe to call
-     * from any thread; the actual IPC to the app happens on a new thread so
-     * the caller (a live clipboard write, mid system_server call) is never
-     * held up by it.
+     * with plain text is found, enqueues it for ordered delivery to the app.
+     * Safe to call from any thread; the calling thread is never blocked by the
+     * IPC to the app.
+     *
+     * This app is plain-text-only: only [android.content.ClipData.Item.text] is
+     * considered.  [android.content.ClipData.Item.coerceToText] is deliberately
+     * not used here - it can read a ContentProvider stream synchronously on the
+     * calling thread, which is a live system_server clipboard call.  Instead, a
+     * safe fallback chain is used: item.text first (plain/HTML text), then
+     * item.uri.toString() (captures file paths and content URIs as opaque strings
+     * without opening any stream).  Intent clips are ignored - not useful in
+     * clipboard history.
      */
     fun captureAndForward(args: Array<*>, logError: (String) -> Unit) {
         try {
             val clipData = args.firstOrNull { it is ClipData } as? ClipData ?: return
             if (clipData.itemCount <= 0) return
+
             val item = clipData.getItemAt(0)
-
             val text = item.text?.toString()?.takeIf { it.isNotBlank() }
-                ?: resolveSystemContext(logError)?.let { ctx ->
-                    runCatching { item.coerceToText(ctx)?.toString() }.getOrNull()
-                }
+                ?: item.uri?.toString()?.takeIf { it.isNotBlank() }
+                ?: return
 
-            if (text.isNullOrBlank()) return
-            forwardToApp(text, logError)
+            // Stamp the capture time before enqueueing so the delivery side can
+            // apply the privacy-window check against the actual observation time,
+            // not the (potentially delayed) delivery time.
+            val capturedAt = System.currentTimeMillis()
+            forwardToApp(text, capturedAt, logError)
         } catch (t: Throwable) {
             logError("error handling clipboard change: $t")
         }
     }
 
-    private fun forwardToApp(text: String, logError: (String) -> Unit) {
+    private fun forwardToApp(text: String, capturedAt: Long, logError: (String) -> Unit) {
         val ctx = resolveSystemContext(logError) ?: return
-        Thread {
+        deliveryExecutor.execute {
             try {
                 val values = ContentValues().apply {
                     put(ClipboardProvider.COLUMN_CONTENT, text)
+                    put(ClipboardProvider.COLUMN_CAPTURED_AT, capturedAt)
                 }
                 ctx.contentResolver.insert(ClipboardProvider.CONTENT_URI, values)
             } catch (t: Throwable) {
                 logError("failed to forward clip to app: $t")
             }
-        }.start()
+        }
     }
 }

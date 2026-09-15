@@ -2,7 +2,16 @@
 <resources>
     <string name="xposed_description">Captures system-wide clipboard changes (via system_server) into ClipVault\'s local history. No network access, nothing leaves the device.</string>
 
-    <string name="settings_status_active">LSPosed hook active</string>
-    <string name="settings_status_inactive">LSPosed hook not detected</string>
+    <!-- State 1: module not loaded in LSPosed at all -->
+    <string name="settings_status_inactive">Module not detected</string>
     <string name="settings_status_hint">Enable the ClipVault module for Android System in LSPosed Manager, then reboot.</string>
+
+    <!-- State 2: module loaded into this process, but no clip has been delivered yet.
+         This can mean "working fine, nothing copied since install" OR "system_server
+         hook silently failed" - the hint prompts the user to verify. -->
+    <string name="settings_status_module_loaded">Module loaded – not yet confirmed</string>
+    <string name="settings_status_module_loaded_hint">Copy something to verify the system_server hook is delivering to ClipVault. If nothing appears, check that Android System is in scope in LSPosed Manager.</string>
+
+    <!-- State 3: at least one clip has made it all the way from system_server to the DB -->
+    <string name="settings_status_active">Active</string>
 </resources>

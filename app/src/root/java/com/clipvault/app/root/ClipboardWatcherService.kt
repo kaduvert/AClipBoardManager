@@ -40,13 +40,24 @@ class ClipboardWatcherService : Service() {
     private var lastSeenContent: String? = null
 
     private val listener = ClipboardManager.OnPrimaryClipChangedListener {
+        // Stamp the observation time immediately on the listener thread, before any
+        // coroutine dispatch, so the privacy-window check in recordCapture() uses the
+        // real clip-observed time rather than the (slightly later) time the coroutine
+        // actually runs.  This mirrors what the LSPosed hook does with capturedAt.
+        val capturedAt = System.currentTimeMillis()
         val clip = runCatching { clipboardManager.primaryClip }.getOrNull() ?: return@OnPrimaryClipChangedListener
         if (clip.itemCount <= 0) return@OnPrimaryClipChangedListener
-        val text = clip.getItemAt(0).coerceToText(this)?.toString()?.takeIf { it.isNotBlank() } ?: return@OnPrimaryClipChangedListener
+        // coerceToText is intentionally not used - this is a plain-text-only app, and
+        // coerceToText can read a ContentProvider stream synchronously on this thread.
+        // Safe fallback chain: .text first, then .uri as an opaque string (captures
+        // file paths and content URIs without opening any stream).
+        val text = clip.getItemAt(0).text?.toString()?.takeIf { it.isNotBlank() }
+            ?: clip.getItemAt(0).uri?.toString()?.takeIf { it.isNotBlank() }
+            ?: return@OnPrimaryClipChangedListener
         if (text == lastSeenContent) return@OnPrimaryClipChangedListener
         lastSeenContent = text
         val repo = (application as ClipVaultApp).repository
-        scope.launch { repo.recordCapture(text) }
+        scope.launch { repo.recordCapture(text, capturedAt) }
     }
 
     override fun onCreate() {
