@@ -71,6 +71,11 @@ class ClipboardHook : IXposedHookLoadPackage {
 
     private val afterHook = object : XC_MethodHook() {
         override fun afterHookedMethod(param: MethodHookParam) {
+            // Only capture if the original call succeeded.  afterHookedMethod() is
+            // invoked by the rovo89 API even when the original threw - param.throwable
+            // is non-null in that case.  A clipboard write that threw never actually
+            // updated the clipboard, so there is nothing correct to capture.
+            if (param.throwable != null) return
             ClipCapture.captureAndForward(param.args, ::log)
         }
     }

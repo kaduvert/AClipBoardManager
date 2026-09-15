@@ -26,9 +26,16 @@ class ClipboardHookModern : XposedModule() {
                         .setPriority(XposedInterface.PRIORITY_DEFAULT)
                         .setExceptionMode(XposedInterface.ExceptionMode.PROTECTIVE)
                         .intercept { chain ->
+                            // Let the real call run first.  captureAndForward is only
+                            // reached if chain.proceed() returns normally, meaning the
+                            // clipboard write actually succeeded.  If it throws, the
+                            // exception propagates and we never capture - a failed write
+                            // should not enter history.  captureAndForward has its own
+                            // try-catch and will not rethrow, so the return value from
+                            // proceed() is always what the caller receives.
+                            val returnValue = chain.proceed()
                             ClipCapture.captureAndForward(chain.args.toTypedArray()) { msg -> Log.w(TAG, msg) }
-                            // Read-only: always let the real call through unchanged.
-                            chain.proceed()
+                            returnValue
                         }
                 } catch (t: Throwable) {
                     Log.w(TAG, "could not hook $method: $t")

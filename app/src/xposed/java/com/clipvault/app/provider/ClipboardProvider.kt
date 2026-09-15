@@ -25,6 +25,8 @@ class ClipboardProvider : ContentProvider() {
         const val AUTHORITY = "com.clipvault.app.provider"
         const val PATH_CLIPS = "clips"
         const val COLUMN_CONTENT = "content"
+        /** Epoch-millis at which the clip was first observed in system_server. */
+        const val COLUMN_CAPTURED_AT = "captured_at"
         val CONTENT_URI: Uri = Uri.parse("content://$AUTHORITY/$PATH_CLIPS")
     }
 
@@ -37,7 +39,10 @@ class ClipboardProvider : ContentProvider() {
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
         val content = values?.getAsString(COLUMN_CONTENT) ?: return null
-        runBlocking { repository.recordCapture(content) }
+        // capturedAt is the timestamp from system_server, stamped before the IPC.
+        // It may be absent in older/external callers - fall back to now in that case.
+        val capturedAt = values.getAsLong(COLUMN_CAPTURED_AT) ?: System.currentTimeMillis()
+        runBlocking { repository.recordCapture(content, capturedAt) }
         return CONTENT_URI
     }
 
