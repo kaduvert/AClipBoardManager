@@ -29,3 +29,11 @@ Requires either an active LSPosed module or root access to capture
 anything - see the project README for setup instructions.
 
 This app is fully AI generated. It's great though 🤷‍♂️
+
+There should be two versions up on F-Droid,
+the lower one using Xposed 93 and the higher one libxposed 102.
+If one doesn't work maybe the other does!
+
+It works for me on my Android 15, it should work from A13 upwards,
+but users have reported it not working on A16.
+Use the issue tracker if encountering any problems!
